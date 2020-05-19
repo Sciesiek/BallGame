@@ -10,21 +10,58 @@ public class BallBehaviour : MonoBehaviour
     public float maxX;
     public float maxY;
 
+    public float startX;
+
+    public float startY;
+
     public float speed;
+
+    public bool inPlay;
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        rb.AddForce(Vector2.right * speed);
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        if(!inPlay){
+            launchBall();
+        }
     }
 
-    Vector2 GetRandomDirection()
+    void OnTriggerEnter2D(Collider2D other) {
+        if(other.CompareTag("border")){
+            lostGame();
+        }
+        if(other.CompareTag("coin")){
+            grabbedCoin(other.gameObject);
+        }
+    }
+
+    void launchBall(){
+        if (Input.touchCount > 0){
+            if(Input.GetTouch(0).phase == TouchPhase.Ended){
+                rb.AddForce(Vector2.right * speed);
+                inPlay = true;
+            }
+        }
+    }
+
+    void lostGame(){
+        transform.position = new Vector2(startX, startY);
+        rb.velocity = Vector2.zero;
+        inPlay = false;
+        //Debug.Log("Ball hit border!!");
+    }
+
+    void grabbedCoin(GameObject gameObject){
+        gameObject.transform.position = GetRandomPosition();
+        //Debug.Log("Grabbed coin!!!");
+    }
+
+    Vector2 GetRandomPosition()
     {
         float randomX = Random.Range(minX, maxX);
         float randomY = Random.Range(minY, maxY);
