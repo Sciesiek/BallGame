@@ -17,6 +17,9 @@ public class BallBehaviour : MonoBehaviour
     public float speed;
 
     public bool inPlay;
+
+    public GameManager gameManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -27,20 +30,22 @@ public class BallBehaviour : MonoBehaviour
     void Update()
     {
         if(!inPlay){
-            launchBall();
+            LaunchBall();
+        }else{
+            gameManager.AddScore(1 * Time.deltaTime);
         }
     }
 
     void OnTriggerEnter2D(Collider2D other) {
         if(other.CompareTag("border")){
-            lostGame();
+            LostGame();
         }
         if(other.CompareTag("coin")){
-            grabbedCoin(other.gameObject);
+            GrabbedCoin(other.gameObject);
         }
     }
 
-    void launchBall(){
+    void LaunchBall(){
         if (Input.touchCount > 0){
             if(Input.GetTouch(0).phase == TouchPhase.Ended){
                 rb.AddForce(Vector2.right * speed);
@@ -49,16 +54,16 @@ public class BallBehaviour : MonoBehaviour
         }
     }
 
-    void lostGame(){
+    void LostGame(){
         transform.position = new Vector2(startX, startY);
         rb.velocity = Vector2.zero;
         inPlay = false;
-        //Debug.Log("Ball hit border!!");
+        gameManager.ResetScore();
     }
 
-    void grabbedCoin(GameObject gameObject){
+    void GrabbedCoin(GameObject gameObject){
         gameObject.transform.position = GetRandomPosition();
-        //Debug.Log("Grabbed coin!!!");
+        gameManager.AddScore(100);
     }
 
     Vector2 GetRandomPosition()
